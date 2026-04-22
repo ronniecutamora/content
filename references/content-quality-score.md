@@ -169,7 +169,7 @@ If a gate fails, stop and fix **that specific problem** before scoring the rubri
 
 ## 3. Rubric — 100 points across 6 categories
 
-The 32 gates above guarantee **structural minimums**. The 6 categories below evaluate **quality**. Even a draft that passes all gates can score 50/100 if it is hollow — gate-pass is necessary but not sufficient.
+The 38 gates above guarantee **structural minimums** and **freedom from the known hallucination vectors**. The 6 categories below evaluate **quality**. Even a draft that passes all gates can score 50/100 if it is hollow — gate-pass is necessary but not sufficient.
 
 ### 3.1 Originality & Uniqueness — 20 points
 
@@ -334,7 +334,7 @@ The AI must produce a JSON block like this **internally** (not posted publicly) 
   "emoji_count": 32,
   "gates_passed": ["G1","G2","G3","G4","G5","G6","G7","G8","G9","G10","G11","G12","G13","G14",
                    "G15","G16","G17","G18","G19","G20","G21","G22","G23","G24","G25","G26",
-                   "G27","G28","G29","G30","G31","G32"],
+                   "G27","G28","G29","G30","G31","G32","G33","G34","G35","G36","G37","G38"],
   "scores": {
     "originality": 18,
     "depth": 17,
@@ -351,10 +351,10 @@ The AI must produce a JSON block like this **internally** (not posted publicly) 
 ```
 
 **Required fields:**
-- All 32 gates must appear in `gates_passed`. Any missing gate → fail outright, do not submit.
+- All 38 gates must appear in `gates_passed`. Any missing gate → fail outright, do not submit.
 - All 6 scores must be present (no `null`).
 - `total` is the sum of all 6 scores (max 100).
-- `pass = total ≥ 90 AND len(gates_passed) == 32`.
+- `pass = total ≥ 90 AND len(gates_passed) == 38 AND red_team.definite_errors == []`.
 - `weak_areas`: every category scoring below the "Good" band (`originality < 13`, `depth < 13`, `accuracy < 9`, `structure < 9`, `reader_value < 13`, `polish < 7`).
 - `revision_round`: 0 for first draft, 1 for first revision, 2 for second revision.
 
@@ -378,7 +378,8 @@ else:
 
 | Failure | Fix |
 |---------|-----|
-| **G2 word count** | Add depth-driven sections: history, comparison with alternatives, persona-targeted advice, FAQ. Do NOT pad with filler — that would tank §3.2. |
+| **G2 length band** | **Undershoot**: add depth-driven sections (history, comparison with alternatives, persona-targeted advice, FAQ). Do NOT pad with filler — that tanks §3.2. **Overshoot**: tighten by merging overlapping sections, removing tangential content, and cutting redundant adjectives. Consider demoting to a smaller topic class (e.g., a single-venue review rather than a destination guide) if the material genuinely doesn't warrant the higher tier. Both undershoot and overshoot fail G2 equally. |
+| **G33–G38 anti-hallucination** | Extract every flagged claim into `claims.json` with `source_url` + `confidence` + `risk_class` (§10). For `definite_errors` raised by the red-team (§11), either remove the specific, soften to a sourced vague alternative, or research and link a primary source. High-risk classes (safety / legal / financial / contact) must be sourced or dropped — never softened. |
 | **G15/G16 image** | Source 1–2 more images from a different domain. Confirm download → upload → embed pipeline. Verify `--upload-ids` flag is passed. |
 | **G8–G14 metadata** | Re-research; if any field can't be verified, abandon the topic — do not invent. |
 | **G12 coordinates** | Use Google Maps or OpenStreetMap to obtain coordinates ≥ 4 decimals. Round at 4 decimals only if higher precision is unavailable. |
@@ -436,7 +437,7 @@ else:
 ```json
 {
   "word_count": 5421, "image_count": 5,
-  "gates_passed": [/* all 32 */],
+  "gates_passed": [/* all 38 */],
   "scores": { "originality":17,"depth":18,"accuracy":14,"structure":14,"reader_value":19,"polish":9 },
   "total": 91,
   "pass": true
@@ -625,7 +626,7 @@ Every claim in `claims.json` must pass the verification bar for its `risk_class`
 ## 8. Interaction with topic reservation
 
 - The rubric runs **after** a successful `POST /topics/reserve`. The reservation holds the slug for the TTL (default 30 minutes). Use this window for image download/upload, drafting, scoring, and up to 2 revisions.
-- Heavy posts (5,000+ words + 3+ images) may exceed the default TTL. Pass `--ttl-minutes 90` (max 120) when reserving for long-form posts.
+- Long-form posts (cultural deep-dives or full place guides in the 5,000–8,000 Korean-char tiers, plus 3+ images) may exceed the default TTL. Pass `--ttl-minutes 90` (max 120) when reserving these. Short-form reviews (1,500–3,000 chars) typically fit inside the default 30-minute window.
 - If scoring exhausts the TTL, the reservation expires naturally; the next `topic-reserve` call for the same slug will succeed again (expired rows are lazy-cleaned). However, your uploaded images will already be on the server — reuse those upload_ids if you re-reserve the same slug.
 - **Do not** call `POST /posts` with `reservation_id` until every gate passes and the rubric returns `pass: true`. Submitting a low-quality post consumes the reservation and permanently locks the slug against re-publishing for this user — wasting a reservation on junk is worse than abandoning it.
 
@@ -636,7 +637,7 @@ Every claim in `claims.json` must pass the verification bar for its `risk_class`
 ```
 === Hard requirements ===
 [ ] G1   ≥ 20 distinct sources consulted
-[ ] G2   ≥ 5,000 words (or ≥ 9,000 KO chars)
+[ ] G2   Length inside target band for declared topic class (§1.1)
 [ ] G3   ≥ 5 sections + 📍 metadata block
 [ ] G4   Body matches reserved topic_slug
 [ ] G5   topic-check returned "available"
