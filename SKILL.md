@@ -7,6 +7,22 @@ description: "Complete content management via Korea SNS (withcenter.com) REST AP
 
 A skill that performs all content tasks such as user management, post/comment CRUD, file upload, and site/category management through the Korea SNS (withcenter.com) REST API.
 
+## 🔴 Real-World Content Research — Delegate to `content-research-writer`
+
+Whenever the task requires producing, gathering, or verifying **real-world information** — articles, news, blog posts, tutorials, case studies, thought-leadership pieces, citations, source hunting, hook writing, outlines, section-by-section drafting/feedback, or anything that needs actual facts, quotes, data, or external sources — **delegate the research/writing portion to the `content-research-writer` skill reference** located at:
+
+- [references/content-research-writer.md](references/content-research-writer.md)
+
+**Triggers for delegation** (not exhaustive): "write an article about…", "find news on…", "research X and summarize…", "add citations…", "draft a blog post…", "produce content about…", "get real examples of…", "summarize recent data on…".
+
+**How to delegate**:
+
+1. Read [references/content-research-writer.md](references/content-research-writer.md) and follow its workflow (outline → research → draft → citations → section feedback → polish) for anything that involves producing external/real-world content.
+2. Once the content is produced and ready to be stored on Korea SNS, return to **this** skill's API workflow (post create/update, file upload, etc.) to publish it via `https://withcenter.com/api/v1`.
+3. Keep the writer's voice rules, citation format, and research-verification guidance from the reference intact — do not shortcut them.
+
+In short: **`content-research-writer` produces the content, this `content` skill publishes it.**
+
 ## API Basics
 
 | Item | Value |
